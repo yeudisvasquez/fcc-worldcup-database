@@ -8,27 +8,23 @@ do
   #skip files header
   if [[ $YEAR != year ]]
   then
-    #insert winner
-    INSERT_WINNER=$($PSQL "INSERT INTO teams(name) VALUES('$WINNER') ON CONFLICT (name) DO NOTHING;")
+    #insert winnenr
     WINNER_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$WINNER'")
-    if [[ $INSERT_WINNER == "INSERT 0 1" ]]
+    if [[ -z $WINNER_ID ]]
     then
-      echo Inserted into teams, $WINNER
+      echo $($PSQL "INSERT INTO teams(name) VALUES('$WINNER') ON CONFLICT (name) DO NOTHING;")
     fi
+
     #insert opponent
-    INSERT_OPPONENT=$($PSQL "INSERT INTO teams(name) VALUES('$OPPONENT') ON CONFLICT (name) DO NOTHING;")
     OPPONENT_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$OPPONENT'")
-    if [[ $INSERT_OPPONENT == "INSERT 0 1" ]]
+    if [[ -z $OPPONENT_ID ]]
     then
-      echo Inserted into teams, $OPPONENT
+      echo $($PSQL "INSERT INTO teams(name) VALUES('$OPPONENT') ON CONFLICT (name) DO NOTHING;")
     fi
+
     #insert games
     WINNER_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$WINNER'")
     OPPONENT_ID=$($PSQL "SELECT team_id FROM teams WHERE name='$OPPONENT'")
-    INSERT_GAMES=$($PSQL "INSERT INTO games(year, round, winner_id, opponent_id, winner_goals, opponent_goals) VALUES($YEAR, '$ROUND', $WINNER_ID, $OPPONENT_ID, $WINNER_GOALS, $OPPONENT_GOALS);")
-    if [[ $INSERT_GAMES == "INSERT 0 1" ]]
-    then
-      echo Inserted into games, $ROUND
-    fi
+    echo $($PSQL "INSERT INTO games(year, round, winner_id, opponent_id, winner_goals, opponent_goals) VALUES($YEAR, '$ROUND', $WINNER_ID, $OPPONENT_ID, $WINNER_GOALS, $OPPONENT_GOALS);")
   fi
 done
